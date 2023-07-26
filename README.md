@@ -63,3 +63,8 @@
     ```
     docker-compose exec web python manage.py createsuperuser
     ```
+
+
+### API EndPoints
+
+Описание доступных эндроинтов находится в файле api_spec.yml (swagger-спецификация). Можно отрендерить через [онлайн редактор](https://editor.swagger.io/)(скопировать туда файл) или через соответствующий плагин для PyCharm или VSCode
