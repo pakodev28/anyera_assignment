@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.contrib.auth.models import User
 from rest_framework import status
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 from rest_framework.authentication import TokenAuthentication
 
 from pets.models import Pet
@@ -21,51 +21,56 @@ class UserRegistrationViewTestCase(APITestCase):
         self.assertEqual(response.data.get("username"), "testuser")
 
 
-class PetViewSetTestCase(APITestCase):
+class BaseAPITestCase(APITestCase):
     authentication_classes = [TokenAuthentication]
-    url_list = reverse("pet-list")
 
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = User.objects.create_user(
+    def setUp(self):
+        self.user = User.objects.create_user(
             username="testuser", password="testpassword"
         )
-        cls.pet1 = Pet.objects.create(
-            owner=cls.user,
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+
+class PetViewSetTestCase(BaseAPITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.pet1 = Pet.objects.create(
+            owner=self.user,
             name="Pet 1",
             species="Dog",
             breed="Bulldog",
             age=3,
         )
-        cls.pet2 = Pet.objects.create(
-            owner=cls.user,
+        self.pet2 = Pet.objects.create(
+            owner=self.user,
             name="Pet 2",
             species="Cat",
             breed="Siamese",
             age=2,
         )
 
-    def setUp(self):
-        self.client.force_authenticate(user=self.user)
-
-    def create_pet(self, name, species, breed, age):
-        data = {
-            "name": name,
-            "species": species,
-            "breed": breed,
-            "age": age,
-        }
-        return self.client.post(self.url_list, data, format="json")
+    def create_pet(self, data):
+        url_list = reverse("pet-list")
+        return self.client.post(url_list, data, format="json")
 
     def test_list_pets(self):
-        response = self.client.get(self.url_list)
+        url_list = reverse("pet-list")
+        response = self.client.get(url_list)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         pets = Pet.objects.filter(owner=self.user)
         serializer = PetSerializer(pets, many=True)
         self.assertEqual(response.data, serializer.data)
 
     def test_create_pet(self):
-        response = self.create_pet("New Pet", "Dog", "Golden Retriever", 1)
+        data = {
+            "name": "New Pet",
+            "species": "Dog",
+            "breed": "Golden Retriever",
+            "age": 1,
+        }
+        response = self.create_pet(data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Pet.objects.filter(owner=self.user).count(), 3)
 
