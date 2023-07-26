@@ -48,7 +48,7 @@ paths:
               properties:
                 username:
                   type: string
-                  example: "existing_user"
+                  example: "new_user"
                 password:
                   type: string
                   example: "password123"
