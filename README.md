@@ -39,7 +39,7 @@
     cd anyera_assignment/config/
     ```
     ```
-    copy .env.example .env
+    cp .env.example .env
     ```
     ```
     cd ..
