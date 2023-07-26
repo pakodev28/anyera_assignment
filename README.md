@@ -36,7 +36,7 @@
     git clone git@github.com:pakodev28/anyera_assignment.git
     ```
     ```
-    cd config
+    cd anyera_assignment/config/
     ```
     ```
     copy .env.example .env
