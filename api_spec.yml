@@ -1,0 +1,278 @@
+openapi: "3.0.3"
+info:
+  title: "Pet API"
+  version: "1.0.0"
+paths:
+  /register/:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "new_user"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                    example: 1
+                  username:
+                    type: string
+                    example: "new_user"
+        "400":
+          description: Bad Request
+  /login/:
+    post:
+      summary: Obtain JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "existing_user"
+                password:
+                  type: string
+                  example: "password123"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImV4aXN0aW5nX3VzZXIiLCJleHAiOjE2MzIzMDA2NzN9.6nm76ANTru4RfgeCXOOOQpj1RlcSGN5WSzLHYNmjct8"
+                  refresh:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImV4aXN0aW5nX3VzZXIiLCJleHAiOjE2MzIzMDM0NzN9.zLuXvX8R81kzgS9k3VT97J0jQVQ-p9E91s6l6Gk8v-Q"
+        "400":
+          description: Bad Request
+  /token/refresh/:
+    post:
+      summary: Refresh JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh:
+                  type: string
+                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImV4aXN0aW5nX3VzZXIiLCJleHAiOjE2MzIzMDM0NzN9.zLuXvX8R81kzgS9k3VT97J0jQVQ-p9E91s6l6Gk8v-Q"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImV4aXN0aW5nX3VzZXIiLCJleHAiOjE2MzIzMDA2NzN9.6nm76ANTru4RfgeCXOOOQpj1RlcSGN5WSzLHYNmjct8"
+        "401":
+          description: Unauthorized
+  /pets/:
+    get:
+      summary: Get a list of all pets
+      security:
+        - JWT: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Pet"
+    post:
+      summary: Create a new pet
+      security:
+        - JWT: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "400":
+          description: Bad Request
+  /pets/{id}/:
+    get:
+      summary: Get a specific pet
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "404":
+          description: Not Found
+    put:
+      summary: Update a pet
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Pet"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Pet"
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+    delete:
+      summary: Delete a pet
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+  /users/:
+    get:
+      summary: Get a list of all users with their pets
+      security:
+        - JWT: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserWithPets"
+  /users/{id}/:
+    get:
+      summary: Get a specific user with their pets
+      security:
+        - JWT: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserWithPets"
+        "404":
+          description: Not Found
+
+components:
+  schemas:
+    UserWithPets:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        username:
+          type: string
+          example: "existing_user"
+        pets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pet"
+    Pet:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "Fluffy"
+        species:
+          type: string
+          example: "Cat"
+        photo:
+          type: string
+          format: binary
+          example: "AAEAAQAAAAAAA"
+        human_age:
+          type: integer
+          example: 28
+        owner:
+          type: string
+          example: "existing_user"
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
