@@ -63,7 +63,10 @@
     ```
     docker-compose exec web python manage.py createsuperuser
     ```
-
+6. Можете запустить тесты:
+    ```
+    docker-compose exec web pytest
+    ```
 
 ### API EndPoints
 
